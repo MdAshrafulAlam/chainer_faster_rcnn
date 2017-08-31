@@ -13,7 +13,7 @@ class ImageDatabase(object):
         self._classes = []
         self._image_index = []
         self._roidb = None
-        self._roidb_handler = self.default_roidb
+        # self._roidb_handler = self.default_roidb
         self.config = {}
 
     @property
@@ -32,13 +32,13 @@ class ImageDatabase(object):
     def image_index(self):
         return self._image_index
 
-    @property
-    def roidb_handler(self):
-        return self._roidb_handler
+    # @property
+    # def roidb_handler(self):
+    #     return self._roidb_handler
 
-    @roidb_handler.setter
-    def roidb_handler(self, val):
-        self._roidb_handler = val
+    # @roidb_handler.setter
+    # def roidb_handler(self, val):
+    #     self._roidb_handler = val
 
     def set_proposal_method(self, method):
         method = eval('self.' + method + '_roidb')
@@ -53,8 +53,9 @@ class ImageDatabase(object):
         #   flipped
         if self._roidb is not None:
             return self._roidb
-        self._roidb = self.roidb_handler()
-        return self._roidb
+        print('roidb is None')
+        # self._roidb = self.roidb_handler()
+        # return self._roidb
 
     @property
     def cache_path(self):
@@ -184,6 +185,7 @@ class ImageDatabase(object):
         roidb = []
         for i in xrange(self.num_images):
             boxes = box_list[i]
+            print(boxes)
             num_boxes = boxes.shape[0]
             overlaps = np.zeros((num_boxes, self.num_classes), dtype=np.float32)
 

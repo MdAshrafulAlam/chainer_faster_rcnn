@@ -1,13 +1,17 @@
 import os
 import numpy as np
 import xml.etree.ElementTree as ET
-import config
+from config import cfg
+from image_database import ImageDatabase
+import uuid
+import scipy
+import cPickle
 
-class PASCAL_VOC():
+class PASCAL_VOC(ImageDatabase):
     def __init__(self, image_set, year, devkit_path=None):
-        imdb.__init__(self, 'voc' + year + '_' + image_set)
+        ImageDatabase.__init__(self, 'voc' + year + '_' + image_set)
         self._year = year
-        self._imageset = image_set
+        self._image_set = image_set
         self._devkit_path = self._get_default_path() if devkit_path is None \
                             else devkit_path
         self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
@@ -22,9 +26,16 @@ class PASCAL_VOC():
         self._image_index = self._load_image_set_index()
 
         # ROIDB handler
-        self._roidb_handler = self.selective_search_roidb #?
+        # self._roidb_handler = self.selective_search_roidb #?
         self._salt = str(uuid.uuid4()) #?
         self._comp_id = 'comp4'
+
+        self.config = {'cleanup':     True,
+                       'use_salt':    True,
+                       'use_diff':    False,
+                       'matlab_eval': False,
+                       'rpn_file':    None,
+                       'min_size':    2}
 
         assert os.path.exists(self._devkit_path), \
                 'VOCdevkit path does not exist: {}'.format(self._devkit_path)
@@ -48,12 +59,13 @@ class PASCAL_VOC():
                 'Path does not exist: {}'.format(image_set_file)
         with open(image_set_file) as f:
             image_index = [x.strip() for x in f.readlines()]
-        return image_index()
+        return image_index
 
     def _get_default_path(self):
         return os.path.join(cfg.DATA_DIR, 'VOCdevkit' + self._year)
 
     def gt_roidb(self):
+        print(self.cache_path)
         cache_file = os.path.join(self.cache_path, self.name + '_gt_roidb.pkl')
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
@@ -88,7 +100,7 @@ class PASCAL_VOC():
         return self.create_roidb_from_box_list(box_list, gt_roidb)
 
     def _load_pascal_annotation(self, index):
-        filename = os.path.join(self._data_path, 'Annotation', index + '.xml')
+        filename = os.path.join(self._data_path, 'Annotations', index + '.xml')
         tree = ET.parse(filename)
         objs = tree.findall('object')
         if not self.config['use_diff']:
@@ -205,4 +217,4 @@ class PASCAL_VOC():
 if __name__ == '__main__':
     from pascal_voc import PASCAL_VOC
     d = PASCAL_VOC('trainval', '2007')
-    res = d.roidb
+    res = d.rpn_roidb()
