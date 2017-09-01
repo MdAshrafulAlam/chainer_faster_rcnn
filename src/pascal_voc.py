@@ -90,6 +90,11 @@ class PASCAL_VOC(ImageDatabase):
 
         return roidb
 
+    def _load_selective_search_roidb(self, gt_roidb):
+        #TODO
+        box_list = []
+        return self.create_roidb_from_box_list(box_list, gt_roidb)
+
     def _load_rpn_roidb(self, gt_roidb):
         filename = self.config['rpn_file']
         print('Loading {}'.format(filename))

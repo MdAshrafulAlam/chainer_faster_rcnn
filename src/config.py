@@ -74,6 +74,8 @@ __C.TRAIN.MIN_SIZE = 16
 
 __C.TRAIN.RPN_POSITIVE_WEIGHT = -1.
 
+__C.TRAIN.PROPOSAL_METHOD = 'gt'
+
 
 #
 # Test option

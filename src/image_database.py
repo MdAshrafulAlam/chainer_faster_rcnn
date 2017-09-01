@@ -32,13 +32,13 @@ class ImageDatabase(object):
     def image_index(self):
         return self._image_index
 
-    # @property
-    # def roidb_handler(self):
-    #     return self._roidb_handler
+    @property
+    def roidb_handler(self):
+        return self._roidb_handler
 
-    # @roidb_handler.setter
-    # def roidb_handler(self, val):
-    #     self._roidb_handler = val
+    @roidb_handler.setter
+    def roidb_handler(self, val):
+        self._roidb_handler = val
 
     def set_proposal_method(self, method):
         method = eval('self.' + method + '_roidb')
@@ -54,8 +54,8 @@ class ImageDatabase(object):
         if self._roidb is not None:
             return self._roidb
         print('roidb is None')
-        # self._roidb = self.roidb_handler()
-        # return self._roidb
+        self._roidb = self.roidb_handler()
+        return self._roidb
 
     @property
     def cache_path(self):
@@ -82,7 +82,7 @@ class ImageDatabase(object):
         return [PIL.Image.open(self.image_path_at(i)).size[0]
                 for i in xrange(self.num_images)]
 
-    def _append_flipped_images(self):
+    def append_flipped_images(self):
         num_images = self.num_images
         widths = self._get_widths()
         for i in xrange(num_images):
