@@ -2,6 +2,8 @@ import numpy as np
 import chainer
 from chainer import cuda
 import chainer.functions as F
+from anchor_target_generator import AnchorTargetCreator
+from proposal_target_generator import ProposalTargetCreator
 
 class FasterRCNNTrainChain(chainer.Chain):
     def __init__(self, faster_rcnn, rpn_sigma=3., roi_sigma=1.,

@@ -36,6 +36,22 @@ def get_training_roidb(imdb):
 
     return imdb.roidb
 
+def filter_roidb(roidb):
+    def is_valid(entry):
+        overlaps = entry['max_overlaps']
+        fg_inds = np.where(overlaps >= cfg.TRAIN.FG_THRESH)[0]
+        bg_inds = np.where((overlaps < cfg.TRAIN.BG_THRESH_HI) &
+                          (overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
+        valid = len(fg_inds) > 0 or len(bg_inds) > 0
+        return valid
+
+    num = len(roidb)
+    filtered_roidb = [entry for entry in roidb if is_valid(entry)]
+    num_after = len(filtered_roidb)
+    print('Filtered {} roidb entries: {} -> {}'.format(num - num_after,
+                                                       num, num_after))
+    return filtered_roidb
+
 if __name__ == '__main__':
     imdb, roidb = combined_roidb('voc_2007_trainval')
-    print(roidb[0])
+    roidb = filter_roidb(roidb)

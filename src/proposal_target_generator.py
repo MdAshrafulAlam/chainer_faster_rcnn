@@ -2,7 +2,7 @@ import numpy as np
 import numpy.random as npr
 import overlap
 
-class ProposalTargetGenerator(object):
+class ProposalTargetCreator(object):
     def __init__(self, num_classes):
         self._num_classes = num_classes
 
