@@ -1,24 +1,24 @@
 import numpy as np
 
 
-# Prediction ROIs: (xa_1, ya_1, xa_2, ya_2)
+# Example ROIs: (xa_1, ya_1, xa_2, ya_2)
 # Ground-truth ROIS: (x*_1, y*_1, x*_2, y*_2)
 # Return (t*_x, t*_y, t*_w, t*_h)
-def bbox_transform(anchors, gt_rois):
-    anchor_widths = anchors[:, 2] - anchors[:, 0] + 1.
-    anchor_heights = anchors[:, 3] - anchors[:, 1] + 1.
-    anchor_ctr_x = anchors[:, 0] + 0.5 * anchor_widths
-    anchor_ctr_y = anchors[:, 1] + 0.5 * anchor_heights
+def bbox_transform(ex_rois, gt_rois):
+    ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.
+    ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.
+    ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
+    ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
 
     gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.
     gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.
     gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
     gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
 
-    targets_dx = (gt_ctr_x - anchor_ctr_x) / anchor_widths
-    targets_dy = (gt_ctr_y - anchor_ctr_y) / anchor_heights
-    targets_dw = np.log(gt_widths / anchor_widths)
-    targets_dh = np.log(gt_heights / anchor_heights)
+    targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
+    targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
+    targets_dw = np.log(gt_widths / ex_widths)
+    targets_dh = np.log(gt_heights / ex_heights)
 
     targets = np.vstack((targets_dx, targets_dy, targets_dw, targets_dh)).transpose()
     return targets
