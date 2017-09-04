@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import numpy.random as npr
-from anchor_generator import anchor_generator
+from anchor_generator import generate_anchors
 import bbox_transform
 from overlap import bbox_overlaps
 
