@@ -8,7 +8,9 @@ class ProposalTargetCreator(object):
 
     # Proposal ROIs: (0, x1, y1, x2, y2)
     # GT boxes: (x1, y1, x2, y2, label)
-    def __call__(self, proposals, gt_boxes):
+    def __call__(self, proposals, gt_boxes, labels,
+                 loc_normalize_means=(0., 0., 0., 0.),
+                 loc_normalize_stds=(0.1, 0.1, 0.2, 0.2)):
         zeros = np.zeros((gt_boxes.shape[0], 1), dtype=gt_boxes.dtype)
         all_rois = np.vstack((all_rois, np.hstack((zeros, gt_boxes[:, :-1]))))
 

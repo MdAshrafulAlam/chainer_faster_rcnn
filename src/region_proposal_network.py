@@ -44,7 +44,7 @@ class RegionProposalNetwork(chainer.Chain):
                                       anchor, img_size, scale=scale)
             batch_index = i * self.xp.ones((len(roi),), dtype=np.int32)
             rois.append(roi)
-            roi_indices.append(batch_size)
+            roi_indices.append(batch_index)
 
         rois = self.xp.concatenate(rois, axis=0)
         roi_indices = self.xp.concatenate(roi_indices, axis=0)
