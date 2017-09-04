@@ -2,6 +2,7 @@ import numpy as np
 import chainer
 from chainer import cuda
 import chainer.functions as F
+from resize import resize
 
 class FasterRCNN(chainer.Chain):
     def __init__(self, extractor, rpn, head, mean,
@@ -9,7 +10,7 @@ class FasterRCNN(chainer.Chain):
                  max_size=1000,
                  loc_normalize_mean=(0., 0., 0., 0.),
                  loc_normalize_std=(0.1, 0.1, 0.2, 0.2),):
-        super().__init__()
+        super(FasterRCNN, self).__init__()
 
         with self.init_scope():
             self.extractor = extractor

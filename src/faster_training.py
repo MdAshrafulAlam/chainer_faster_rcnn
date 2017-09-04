@@ -7,9 +7,9 @@ from proposal_target_generator import ProposalTargetCreator
 
 class FasterRCNNTrainChain(chainer.Chain):
     def __init__(self, faster_rcnn, rpn_sigma=3., roi_sigma=1.,
-                 anchor_target_creator=AnchorTargetCreator(),
-                 proposal_target_creator=ProposalTargetCreator()):
-        super().__init__()
+                 anchor_target_creator=AnchorTargetCreator(16, 0),
+                 proposal_target_creator=ProposalTargetCreator(21)):
+        super(FasterRCNNTrainChain, self).__init__()
         with self.init_scope():
             self.faster_rcnn = faster_rcnn
         self.rpn_sigma = rpn_sigma
@@ -37,6 +37,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         img_size = (H, W)
 
         features = self.faster_rcnn.extractor(imgs)
+        print(features.shape)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(
                 features, img_size, scale)
 

@@ -3,22 +3,24 @@ import chainer
 from chainer import cuda
 import chainer.functions as F
 import chainer.links as L
+from anchor_generator import generate_anchors
+from proposal_generator import ProposalCreator
 
 class RegionProposalNetwork(chainer.Chain):
     def __init__(self, in_channels=512, mid_channels=512, ratios=[0.5, 1, 2],
                  anchor_scales=[8, 16, 32], feat_stride=16,
                  initialW=None,
                  proposal_creator_params={},):
-        self.anchor_base = generate_anchor_base(anchor_scales=anchor_scales, ratios=ratios)
+        self.anchor_base = generate_anchors()
         self.feat_stride = feat_stride
         self.proposal_layer = ProposalCreator(**proposal_creator_params)
 
         n_anchor = self.anchor_base.shape[0]
-        super().__init__()
+        super(RegionProposalNetwork, self).__init__()
         with self.init_scope():
             self.conv1 = L.Convolution2D(in_channels, mid_channels, 3, 1, 1, initialW=initialW)
-            self.score = L.Convolution2D(mid_channels, n_anchor * 2, 1, 1, 0, intialW=initialW)
-            self.loc = L.Convolution2D(mid_channels, n_anchor * 4, 1, 1, 0, intialW=initialW)
+            self.score = L.Convolution2D(mid_channels, n_anchor * 2, 1, 1, 0, initialW=initialW)
+            self.loc = L.Convolution2D(mid_channels, n_anchor * 4, 1, 1, 0, initialW=initialW)
 
     def __call__(self, x, img_size, scale=1.):
         n, _, hh, ww = x.shape

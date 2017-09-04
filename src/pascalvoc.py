@@ -1,8 +1,9 @@
 import os
 from chainer.dataset import download
-import utils
-from utils import *
+from utils.download import *
+from utils.image import *
 import chainer
+import xml.etree.ElementTree as ET
 
 root = 'data/VOC'
 urls = {
@@ -28,9 +29,9 @@ def get_voc(year, split):
     if os.path.exists(split_file):
         return base_path
 
-    download_file_path = utils.cached_download(urls[key])
+    download_file_path = cached_download(urls[key])
     ext = os.path.splitext(urls[key])[1]
-    utils.extractall(download_file_path, data_root, ext)
+    extractall(download_file_path, data_root, ext)
     return base_path
 
 voc_detection_label_names = (
@@ -87,7 +88,7 @@ class VOCDataset(chainer.dataset.DatasetMixin):
     def __init__(self, data_dir='auto', split='train', year='2012',
                  use_difficult=False, return_difficult=False):
         if data_dir == 'auto' and year in ['2007', '2012']:
-            data_dir = voc_utils.get_voc(year, split)
+            data_dir = get_voc(year, split)
 
         if split not in ['train', 'trainval', 'val']:
             if not (split == 'test' and year == '2007'):
@@ -116,8 +117,8 @@ class VOCDataset(chainer.dataset.DatasetMixin):
                 continue
             difficult.append(int(obj.find('difficult').text))
             bndbox_anno = obj.find('bndbox')
-            for tag in ('ymin', 'xmin', 'ymax', 'xmax'):
-                bbox.append(int(bndbox_anno.find(tag).text) - 1)
+            bbox.append([int(bndbox_anno.find(tag).text) - 1
+                for tag in ('ymin', 'ymax', 'xmin', 'xmax')])
             name = obj.find('name').text.lower().strip()
             label.append(voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)

@@ -70,7 +70,7 @@ __C.TRAIN.RPN_PRE_NMS_TOP_N = 12000
 __C.TRAIN.RPN_POST_NMS_TOP_N = 2000
 
 # Min size for proposal's height and width
-__C.TRAIN.MIN_SIZE = 16
+__C.TRAIN.RPN_MIN_SIZE = 16
 
 __C.TRAIN.RPN_POSITIVE_WEIGHT = -1.
 
