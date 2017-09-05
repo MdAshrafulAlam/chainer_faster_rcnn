@@ -28,7 +28,6 @@ class ProposalCreator(object):
 
         height, width = im_size[0], im_size[1]
 
-        print(bbox_deltas.shape)
         # bbox_deltas = bbox_deltas.transpose((0, 2, 3, 1)).reshape((-1, 4))
         # scores = scores.transpose((0, 2, 3, 1)).reshape((-1, 1))
 
