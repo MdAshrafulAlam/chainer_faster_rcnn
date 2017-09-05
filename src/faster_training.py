@@ -37,7 +37,6 @@ class FasterRCNNTrainChain(chainer.Chain):
         img_size = (H, W)
 
         features = self.faster_rcnn.extractor(imgs)
-        print(features.shape)
         rpn_locs, rpn_scores, rois, roi_indices, anchor = self.faster_rcnn.rpn(
                 features, img_size, scale)
 
@@ -46,7 +45,7 @@ class FasterRCNNTrainChain(chainer.Chain):
         label = labels[0]
         rpn_score = rpn_scores[0]
         rpn_loc = rpn_locs[0]
-        roi = rois[0]
+        roi = rois
 
         # Sampling ROIs and feeding Fast RCNN
         sample_roi, gt_roi_loc, gt_roi_label = self.proposal_target_creator(roi, bbox, label,
@@ -57,14 +56,14 @@ class FasterRCNNTrainChain(chainer.Chain):
 
         # RPN losses
         gt_rpn_loc, gt_rpn_label = self.anchor_target_creator(bbox, anchor, img_size)
-        rpn_loc_loss = fast_rcnn_loc_loss(rpn_loc, gt_rpn_loc, gt_rpn_label, self.rpn_sigma)
+        rpn_loc_loss = _fast_rcnn_loc_loss(rpn_loc, gt_rpn_loc, gt_rpn_label, self.rpn_sigma)
         rpn_cls_loss = F.softmax_cross_entropy(rpn_score, gt_rpn_label)
 
         # Head losses
         n_sample = roi_cls_loc.shape[0]
         roi_cls_loc = roi_cls_loc.reshape(n_sample, -1, 4)
         roi_loc = roi_cls_loc[self.xp.arange(n_sample), gt_roi_label]
-        roi_loc_loss = fast_rcnn_loc_loss(roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
+        roi_loc_loss = _fast_rcnn_loc_loss(roi_loc, gt_roi_loc, gt_roi_label, self.roi_sigma)
         roi_cls_loss = F.softmax_cross_entropy(roi_score, gt_roi_label)
 
         loss = rpn_loc_loss + rpn_cls_loss + roi_loc_loss + roi_cls_loss
@@ -91,5 +90,5 @@ def _fast_rcnn_loc_loss(pred_loc, gt_loc, gt_label, sigma):
     in_weight = xp.zeros_like(gt_loc)
     in_weight[gt_label > 0] = 1
     loc_loss = _smooth_l1_loss(pred_loc, gt_loc, in_weight, sigma)
-    loc_loss /= xp.sum(gt_label > 0)
+    loc_loss /= xp.sum(gt_label >= 0)
     return loc_loss

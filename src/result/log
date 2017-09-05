@@ -1,0 +1,35 @@
+[
+    {
+        "main/roi_cls_loss": 0.8181255400180817, 
+        "main/rpn_cls_loss": 0.42946020762901754, 
+        "iteration": 20, 
+        "elapsed_time": 1212.7601561546326, 
+        "epoch": 0, 
+        "lr": 0.001, 
+        "main/rpn_loc_loss": 2.194129799306393, 
+        "main/roi_loc_loss": 0.0027195098898118884, 
+        "main/loss": 3.44443501830101
+    }, 
+    {
+        "main/roi_cls_loss": NaN, 
+        "main/rpn_cls_loss": NaN, 
+        "iteration": 40, 
+        "elapsed_time": 2480.426250219345, 
+        "epoch": 0, 
+        "lr": 0.001, 
+        "main/rpn_loc_loss": NaN, 
+        "main/roi_loc_loss": NaN, 
+        "main/loss": NaN
+    }, 
+    {
+        "main/roi_cls_loss": NaN, 
+        "main/rpn_cls_loss": NaN, 
+        "iteration": 60, 
+        "elapsed_time": 2898.629655122757, 
+        "epoch": 0, 
+        "lr": 0.001, 
+        "main/rpn_loc_loss": NaN, 
+        "main/roi_loc_loss": NaN, 
+        "main/loss": NaN
+    }
+]

@@ -118,7 +118,7 @@ class VOCDataset(chainer.dataset.DatasetMixin):
             difficult.append(int(obj.find('difficult').text))
             bndbox_anno = obj.find('bndbox')
             bbox.append([int(bndbox_anno.find(tag).text) - 1
-                for tag in ('ymin', 'ymax', 'xmin', 'xmax')])
+                for tag in ('ymin', 'xmin', 'ymax', 'xmax')])
             name = obj.find('name').text.lower().strip()
             label.append(voc_detection_label_names.index(name))
         bbox = np.stack(bbox).astype(np.float32)

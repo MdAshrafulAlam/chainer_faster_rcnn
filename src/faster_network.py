@@ -112,7 +112,7 @@ class VGG16ROIHead(chainer.Chain):
     def __call__(self, x, rois, roi_indices):
         roi_indices = roi_indices.astype(np.float32)
         indices_and_rois = self.xp.concatenate((roi_indices[:, None], rois), axis=1)
-        pool = roi_pooling_2d_yx(x, indices_and_rois,
+        pool = _roi_pooling_2d_yx(x, indices_and_rois,
                                  self.roi_size, self.roi_size,
                                  self.spatial_scale)
         fc6 = F.relu(self.fc6(pool))

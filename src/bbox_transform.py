@@ -60,7 +60,6 @@ def clip_boxes(boxes, im_shape):
     return boxes
 
 def resize_bbox(bbox, in_size, out_size):
-    print(bbox.shape)
     bbox = bbox.copy()
     y_scale = float(out_size[0] / in_size[0])
     x_scale = float(out_size[1] / in_size[1])

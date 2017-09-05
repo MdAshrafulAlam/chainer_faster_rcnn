@@ -1,7 +1,7 @@
 from chainer import cuda
 
 def bbox_overlaps(anchors, gt_boxes):
-    if anchors.shape[1] != 4 or gt_boxex.shape[1] != 4:
+    if anchors.shape[1] != 4 or gt_boxes.shape[1] != 4:
         raise IndexError
     xp = cuda.get_array_module(anchors)
 

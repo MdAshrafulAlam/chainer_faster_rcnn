@@ -43,4 +43,3 @@ if __name__ == '__main__':
     t = time.time()
     a = generate_anchors()
     print time.time() - t
-    print a.shape
