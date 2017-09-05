@@ -42,9 +42,9 @@ def main():
 
     np.random.seed(args.seed)
 
-    #TODO
     train_data = VOCDataset(split='trainval', year='2007')
-    # test_data = VOCDataset(split='test', year='2007')
+    # test_data = VOCDataset(split='test', year='2007',
+    #                        use_difficult=True, return_difficult=True)
 
     faster_rcnn = FasterRCNNVGG16(n_fg_class=len(voc_detection_label_names),
             pretrained_model='imagenet')
