@@ -3,6 +3,7 @@ import numpy.random as npr
 from overlap import bbox_overlaps
 from config import cfg
 from bbox_transform import bbox_transform
+from chainer import cuda
 
 class ProposalTargetCreator(object):
     def __init__(self, num_classes):
@@ -11,9 +12,12 @@ class ProposalTargetCreator(object):
     def __call__(self, proposals, gt_boxes, labels,
                  loc_normalize_means=(0., 0., 0., 0.),
                  loc_normalize_stds=(0.1, 0.1, 0.2, 0.2)):
+        xp = cuda.get_array_module(proposals)
+        proposals = cuda.to_cpu(proposals)
+        gt_boxes = cuda.to_cpu(gt_boxes)
+        labels = cuda.to_cpu(labels)
+
         zeros = np.zeros((gt_boxes.shape[0], 1), dtype=gt_boxes.dtype)
-        # all_rois = np.vstack((proposals, np.hstack((zeros, gt_boxes[:, :-1]))))
-        # print('[DEBUG] Ground truth ROIs before: {}'.format(gt_boxes))
         all_rois = np.concatenate((proposals, gt_boxes), axis=0)
         num_images = 1
         rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
@@ -22,6 +26,10 @@ class ProposalTargetCreator(object):
         rois, bbox_targets, labels = _sample_rois(
                 all_rois, gt_boxes, fg_rois_per_image,
                 rois_per_image, self._num_classes, labels)
+        if xp != np:
+            rois = cuda.to_gpu(rois)
+            bbox_targets = cuda.to_gpu(bbox_targets)
+            labels = cuda.to_gpu(labels)
         return rois, bbox_targets, labels
 
 # Bounding box regression target: (class, tx, ty, tw, th)
