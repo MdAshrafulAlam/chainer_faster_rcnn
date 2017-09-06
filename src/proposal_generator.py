@@ -32,7 +32,11 @@ class ProposalCreator(object):
         # scores = scores.transpose((0, 2, 3, 1)).reshape((-1, 1))
 
         proposals = bbox_transform_inv(anchors, bbox_deltas)
-        proposals = clip_boxes(proposals, im_size)
+        # proposals = clip_boxes(proposals, im_size)
+        proposals[:, slice(0, 4, 2)] = np.clip(
+                proposals[:, slice(0, 4, 2)], 0, im_size[0])
+        proposals[:, slice(1, 4, 2)] = np.clip(
+                proposals[:, slice(1, 4, 2)], 0, im_size[1])
 
         # Remove predicted boxes with either height or width < threshold
         keep = _filter_boxes(proposals, self.min_size * scale)
@@ -60,8 +64,7 @@ class ProposalCreator(object):
 
         if self.post_nms_topN > 0:
             keep = keep[:self.post_nms_topN]
-        proposals = proposals[keep, :]
-        scores = scores[keep]
+        proposals = proposals[keep]
 
         # Output ROIs blob
         # Batch_size = 1 so all batch_inds are 0

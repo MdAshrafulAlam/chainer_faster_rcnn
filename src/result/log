@@ -1,79 +1,13 @@
 [
     {
-        "main/roi_cls_loss": 0.9133724894374609, 
-        "main/rpn_cls_loss": 0.4847565429907263, 
+        "main/roi_cls_loss": 438117907.917788, 
+        "main/rpn_cls_loss": 0.46641547844628806, 
         "iteration": 20, 
-        "elapsed_time": 1213.3221609592438, 
+        "elapsed_time": 777.1379978656769, 
         "epoch": 0, 
         "lr": 0.001, 
-        "main/rpn_loc_loss": 2.8962921500205994, 
-        "main/roi_loc_loss": 0.004849148336052167, 
-        "main/loss": 4.299270379543304
-    }, 
-    {
-        "main/roi_cls_loss": 0.38213956989347936, 
-        "main/rpn_cls_loss": 0.3449549091048539, 
-        "iteration": 40, 
-        "elapsed_time": 2490.275797843933, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": 14.919340626895428, 
-        "main/roi_loc_loss": 0.002855350326308326, 
-        "main/loss": 15.649290668964387
-    }, 
-    {
-        "main/roi_cls_loss": NaN, 
-        "main/rpn_cls_loss": NaN, 
-        "iteration": 60, 
-        "elapsed_time": 3016.587756872177, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": NaN, 
-        "main/roi_loc_loss": NaN, 
-        "main/loss": NaN
-    }, 
-    {
-        "main/roi_cls_loss": NaN, 
-        "main/rpn_cls_loss": NaN, 
-        "iteration": 80, 
-        "elapsed_time": 3582.297334909439, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": NaN, 
-        "main/roi_loc_loss": NaN, 
-        "main/loss": NaN
-    }, 
-    {
-        "main/roi_cls_loss": NaN, 
-        "main/rpn_cls_loss": NaN, 
-        "iteration": 100, 
-        "elapsed_time": 3977.1267108917236, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": NaN, 
-        "main/roi_loc_loss": NaN, 
-        "main/loss": NaN
-    }, 
-    {
-        "main/roi_cls_loss": NaN, 
-        "main/rpn_cls_loss": NaN, 
-        "iteration": 120, 
-        "elapsed_time": 4373.11983704567, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": NaN, 
-        "main/roi_loc_loss": NaN, 
-        "main/loss": NaN
-    }, 
-    {
-        "main/roi_cls_loss": NaN, 
-        "main/rpn_cls_loss": NaN, 
-        "iteration": 140, 
-        "elapsed_time": 4761.294198989868, 
-        "epoch": 0, 
-        "lr": 0.001, 
-        "main/rpn_loc_loss": NaN, 
-        "main/roi_loc_loss": NaN, 
-        "main/loss": NaN
+        "main/rpn_loc_loss": 182833782.15275556, 
+        "main/roi_loc_loss": 1525652.0901897172, 
+        "main/loss": 622477361.2271508
     }
 ]

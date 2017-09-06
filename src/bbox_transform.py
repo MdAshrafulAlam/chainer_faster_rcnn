@@ -9,13 +9,13 @@ def bbox_transform(ex_rois, gt_rois):
     xp = cuda.get_array_module(ex_rois)
     ex_heights = ex_rois[:, 2] - ex_rois[:, 0] + 1.
     ex_widths = ex_rois[:, 3] - ex_rois[:, 1] + 1.
-    ex_ctr_y = ex_rois[:, 0] + 0.5 * ex_widths
-    ex_ctr_x = ex_rois[:, 1] + 0.5 * ex_heights
+    ex_ctr_y = ex_rois[:, 0] + 0.5 * ex_heights
+    ex_ctr_x = ex_rois[:, 1] + 0.5 * ex_widths
 
     gt_heights = gt_rois[:, 2] - gt_rois[:, 0] + 1.
     gt_widths = gt_rois[:, 3] - gt_rois[:, 1] + 1.
-    gt_ctr_y = gt_rois[:, 0] + 0.5 * gt_widths
-    gt_ctr_x = gt_rois[:, 1] + 0.5 * gt_heights
+    gt_ctr_y = gt_rois[:, 0] + 0.5 * gt_heights
+    gt_ctr_x = gt_rois[:, 1] + 0.5 * gt_widths
 
     targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
     targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
@@ -35,8 +35,8 @@ def bbox_transform_inv(anchors, deltas):
 
     anchor_heights = anchors[:, 2] - anchors[:, 0] + 1.
     anchor_widths = anchors[:, 3] - anchors[:, 1] + 1.
-    anchor_ctr_y = anchors[:, 0] + 0.5 * anchor_widths
-    anchor_ctr_x = anchors[:, 1] + 0.5 * anchor_heights
+    anchor_ctr_y = anchors[:, 0] + 0.5 * anchor_heights
+    anchor_ctr_x = anchors[:, 1] + 0.5 * anchor_widths
 
     dy = deltas[:, 0::4]
     dx = deltas[:, 1::4]

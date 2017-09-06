@@ -49,8 +49,8 @@ def _get_bbox_regression_labels(bbox_target_data, num_classes):
 def _compute_targets(ex_rois, gt_rois):
     targets = bbox_transform(ex_rois, gt_rois)
     if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
-        targets = ((targets - np.array(cfg.TRAIN.BBOX_NORMALIZE_MEANS))
-                / np.array(cfg.TRAIN.BBOX_NORMALIZE_STDS))
+        targets = ((targets - np.array(cfg.TRAIN.BBOX_NORMALIZE_MEANS, np.float32))
+                / np.array(cfg.TRAIN.BBOX_NORMALIZE_STDS, np.float32))
     return targets
 
 def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
@@ -60,12 +60,12 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
             np.ascontiguousarray(gt_boxes, dtype=np.float))
     gt_assignment = overlaps.argmax(axis=1)
     max_overlaps = overlaps.max(axis=1)
-    labels = labels[gt_assignment]
+    labels = labels[gt_assignment] + 1
 
     # Foreground ROIs which max_overlaps > FG_THRESH_overlap
     fg_inds = np.where(max_overlaps >= cfg.TRAIN.FG_THRESH)[0]
 
-    fg_rois_this_image = min(fg_rois_per_image, fg_inds.size)
+    fg_rois_this_image = int(min(fg_rois_per_image, fg_inds.size))
 
     # Sample foreground regions
     if fg_inds.size > 0:
@@ -76,7 +76,7 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
                        (max_overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
 
     bg_rois_this_image = rois_per_image - fg_rois_this_image
-    bg_rois_this_image = min(bg_rois_this_image, bg_inds.size)
+    bg_rois_this_image = int(min(bg_rois_this_image, bg_inds.size))
 
     # Sample background regions
     if bg_inds.size > 0:

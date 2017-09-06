@@ -77,7 +77,7 @@ def main():
 
     log_interval = 20, 'iteration'
     plot_interval = 3000, 'iteration'
-    print_interval = 20, 'iteration'
+    print_interval = 5, 'iteration'
 
     trainer.extend(chainer.training.extensions.observe_lr(),
                    trigger=log_interval)

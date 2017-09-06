@@ -14,7 +14,7 @@ __C.TRAIN.MAX_SIZE = 1000
 __C.TRAIN.IMS_PER_BATCH = 1
 
 # Minibatch size (number of ROIs)
-__C.TRAIN.BATCH_SIZE = 256
+__C.TRAIN.BATCH_SIZE = 128
 
 # Fraction of minibatch that is labeled foreground (class > 0)
 __C.TRAIN.FG_FRACTION = 0.25
