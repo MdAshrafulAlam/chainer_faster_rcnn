@@ -2,45 +2,46 @@ import numpy as np
 import random
 from chainer import cuda
 
-# Example ROIs: (xa_1, ya_1, xa_2, ya_2)
-# Ground-truth ROIS: (x*_1, y*_1, x*_2, y*_2)
-# Return (t*_x, t*_y, t*_w, t*_h)
+# Example ROIs: (ya_1, xa_1, ya_2, xa_2)
+# Ground-truth ROIS: (y*_1, x*_1, y*_2, x*_2)
+# Return (t*_y, t*_x, t*_h, t*_w)
 def bbox_transform(ex_rois, gt_rois):
     xp = cuda.get_array_module(ex_rois)
-    ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.
-    ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.
-    ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
-    ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
+    ex_heights = ex_rois[:, 2] - ex_rois[:, 0] + 1.
+    ex_widths = ex_rois[:, 3] - ex_rois[:, 1] + 1.
+    ex_ctr_y = ex_rois[:, 0] + 0.5 * ex_widths
+    ex_ctr_x = ex_rois[:, 1] + 0.5 * ex_heights
 
-    gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.
-    gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.
-    gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
-    gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
+    gt_heights = gt_rois[:, 2] - gt_rois[:, 0] + 1.
+    gt_widths = gt_rois[:, 3] - gt_rois[:, 1] + 1.
+    gt_ctr_y = gt_rois[:, 0] + 0.5 * gt_widths
+    gt_ctr_x = gt_rois[:, 1] + 0.5 * gt_heights
 
     targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
     targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
     targets_dw = xp.log(gt_widths / ex_widths)
     targets_dh = xp.log(gt_heights / ex_heights)
 
-    targets = np.vstack((targets_dx, targets_dy, targets_dw, targets_dh)).transpose()
+    targets = np.vstack((targets_dy, targets_dx, targets_dh, targets_dw)).transpose()
     return targets
 
 def bbox_transform_inv(anchors, deltas):
+    print(deltas)
     xp = cuda.get_array_module(anchors)
     if anchors.shape[0] == 0:
         return xp.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
 
     anchors = anchors.astype(deltas.dtype, copy=False)
 
-    anchor_widths = anchors[:, 2] - anchors[:, 0] + 1.
-    anchor_heights = anchors[:, 3] - anchors[:, 1] + 1.
-    anchor_ctr_x = anchors[:, 0] + 0.5 * anchor_widths
-    anchor_ctr_y = anchors[:, 1] + 0.5 * anchor_heights
+    anchor_heights = anchors[:, 2] - anchors[:, 0] + 1.
+    anchor_widths = anchors[:, 3] - anchors[:, 1] + 1.
+    anchor_ctr_y = anchors[:, 0] + 0.5 * anchor_widths
+    anchor_ctr_x = anchors[:, 1] + 0.5 * anchor_heights
 
-    dx = deltas[:, 0::4]
-    dy = deltas[:, 1::4]
-    dw = deltas[:, 2::4]
-    dh = deltas[:, 3::4]
+    dy = deltas[:, 0::4]
+    dx = deltas[:, 1::4]
+    dh = deltas[:, 2::4]
+    dw = deltas[:, 3::4]
 
     pred_ctr_x = dx * anchor_widths[:, xp.newaxis] + anchor_ctr_x[:, xp.newaxis]
     pred_ctr_y = dy * anchor_heights[:, xp.newaxis] + anchor_ctr_y[:, xp.newaxis]
@@ -48,10 +49,10 @@ def bbox_transform_inv(anchors, deltas):
     pred_h = xp.exp(dh) * anchor_heights[:, xp.newaxis]
 
     pred_boxes = xp.zeros(deltas.shape, dtype=deltas.dtype)
-    pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
-    pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
-    pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
-    pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+    pred_boxes[:, 0::4] = pred_ctr_y - 0.5 * pred_h
+    pred_boxes[:, 1::4] = pred_ctr_x - 0.5 * pred_w
+    pred_boxes[:, 2::4] = pred_ctr_y + 0.5 * pred_h
+    pred_boxes[:, 3::4] = pred_ctr_x + 0.5 * pred_w
 
     return pred_boxes
 

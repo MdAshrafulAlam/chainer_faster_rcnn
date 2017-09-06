@@ -19,14 +19,14 @@ class AnchorTargetCreator(object):
 
         num_anchors = anchors.shape[0]
 
-        im_width, im_height = im_size
+        im_height, im_width = im_size
 
         # Keep only the anchors inside the image
         inds_inside = xp.where(
                 (anchors[:, 0] >= -self.allowed_border) &
                 (anchors[:, 1] >= -self.allowed_border) &
-                (anchors[:, 2] < im_width + self.allowed_border) &
-                (anchors[:, 3] < im_height + self.allowed_border))[0]
+                (anchors[:, 2] < im_height + self.allowed_border) &
+                (anchors[:, 3] < im_width + self.allowed_border))[0]
         anchors = anchors[inds_inside, :]
 
         labels = xp.empty((len(inds_inside),), dtype=xp.int32)
@@ -103,4 +103,3 @@ def _unmap(data, count, inds, fill=0):
 
 def _compute_targets(anchors, gt_rois):
     return bbox_transform(anchors, gt_rois[:, :4]).astype(np.float32, copy=False)
-

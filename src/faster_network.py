@@ -12,7 +12,9 @@ class FasterRCNNVGG16(FasterRCNN):
     _models = {
         'voc07': {
             'n_fg_class': 20,
-            'url': 'model_URL'
+            'url': 'https://github.com/yuyu2172/share-weights/releases/'
+            'download/0.0.4'
+            'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
         }
     } # Add COCO or VOC12 here
     feat_stride = 16

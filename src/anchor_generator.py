@@ -7,19 +7,19 @@ def generate_anchors(base_size=16, ratios=[0.5, 1, 2], scales=2**np.arange(3, 6)
     return anchors
 
 def _whctrs(anchor):
-    w = anchor[2] - anchor[0] + 1
-    h = anchor[3] - anchor[1] + 1
-    x_ctr = anchor[0] + 0.5 * (w - 1)
-    y_ctr = anchor[1] + 0.5 * (h - 1)
+    w = anchor[3] - anchor[1] + 1
+    h = anchor[2] - anchor[0] + 1
+    y_ctr = anchor[0] + 0.5 * (h - 1)
+    x_ctr = anchor[1] + 0.5 * (w - 1)
     return w, h, x_ctr, y_ctr
 
 def _mkanchors(ws, hs, x_ctr, y_ctr):
     ws = ws[:, np.newaxis]
     hs = hs[:, np.newaxis]
-    anchors = np.hstack((x_ctr - 0.5 * (ws - 1),
-                         y_ctr - 0.5 * (hs - 1),
-                         x_ctr + 0.5 * (ws - 1),
-                         y_ctr + 0.5 * (hs - 1)))
+    anchors = np.hstack((y_ctr - 0.5 * (hs - 1),
+                         x_ctr - 0.5 * (ws - 1),
+                         y_ctr + 0.5 * (hs - 1),
+                         x_ctr + 0.5 * (ws - 1)))
     return anchors
 
 def _ratio_enum(anchor, ratios):

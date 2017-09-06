@@ -111,6 +111,10 @@ class FasterRCNN(chainer.Chain):
             cls_bbox = loc2bbox(roi.reshape(-1, 4), roi_cls_loc.reshape(-1, 4))
             cls_bbox = cls_bbox.reshape(-1, self.n_class * 4)
 
+            # Clipiing bounding box
+            cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, H / scale)
+            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / Scale)
+
             prob = F.softmax(roi_score).data
 
             raw_cls_bbox = cuda.to_cpu(cls_bbox)
