@@ -1,57 +1,69 @@
-from config import cfg
-from data_factory import get_imdb
-import image_database
-import numpy as np
-import roidb
+import argparse
+import matplotlib.pyplot as plt
+import chainer
+from pascalvoc import voc_detection_label_names
+from faster_network import FasterRCNNVGG16
+from utils.image import *
 
-def combined_roidb(imdb_name):
-    def get_roidb(imdb_name):
-        imdb = get_imdb(imdb_name)
-        print('Loaded dataset {:s} for training'.format(imdb.name))
-        imdb.set_proposal_method(cfg.TRAIN.PROPOSAL_METHOD)
-        print('Set proposal method: {:s}'.format(cfg.TRAIN.PROPOSAL_METHOD))
-        roidb = get_training_roidb(imdb)
-        return roidb
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--gpu', type=int, default=-1)
+    parser.add_argument('--pretrained_model', default='voc07')
+    parser.add_argument('image')
+    args = parser.parse_args()
 
-    roidbs = [get_roidb(s) for s in imdb_name.split('+')]
-    roidb = roidbs[0]
-    if len(roidbs) > 1:
-        for r in roidbs[1:]:
-            roidb.extend(r)
-        imdb = datasets.imdb.imdb(imdb_name)
-    else:
-        imdb = get_imdb(imdb_name)
-    return imdb, roidb
+    model = FasterRCNNVGG16(
+            n_fg_class=len(voc_detection_label_names),
+            pretrained_model=args.pretrained_model)
 
+    if args.gpu >= 0:
+        chainer.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
 
-def get_training_roidb(imdb):
-    if cfg.TRAIN.USE_FLIPPED:
-        print('Appending horizontally-flipped training examples...')
-        imdb.append_flipped_images()
-        print('Done')
+    img = read_image(args.image, color=True)
+    bboxes, labels, scores = model.predict([img])
+    bbox, label, score = bboxes[0], labels[0], scores[0]
 
-    print('Preparing training data...')
-    roidb.prepare_roidb(imdb)
-    print('Done')
+    print(bbox)
+    print(label)
+    print(score)
 
-    return imdb.roidb
+    draw_bbox(img, bbox, label, score, label_names=voc_detection_label_names)
+    plt.savefig('result.jpg')
 
-def filter_roidb(roidb):
-    def is_valid(entry):
-        overlaps = entry['max_overlaps']
-        fg_inds = np.where(overlaps >= cfg.TRAIN.FG_THRESH)[0]
-        bg_inds = np.where((overlaps < cfg.TRAIN.BG_THRESH_HI) &
-                          (overlaps >= cfg.TRAIN.BG_THRESH_LO))[0]
-        valid = len(fg_inds) > 0 or len(bg_inds) > 0
-        return valid
+def draw_bbox(img, bboxes, labels=None, scores=None, label_names=None, ax=None):
+    if ax is None:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+    img = img.transpose((1, 2, 0))
+    ax.imshow(img.astype(np.uint8))
 
-    num = len(roidb)
-    filtered_roidb = [entry for entry in roidb if is_valid(entry)]
-    num_after = len(filtered_roidb)
-    print('Filtered {} roidb entries: {} -> {}'.format(num - num_after,
-                                                       num, num_after))
-    return filtered_roidb
+    if len(bboxes) == 0:
+        return ax
+
+    for i, bbox in enumerate(bboxes):
+        xy = (bbox[1], bbox[0])
+        height = bbox[2] - bbox[0]
+        width = bbox[3] - bbox[1]
+        ax.add_patch(plt.Rectangle(
+            xy, width, height, fill=False, edgecolor='red', linewidth=3))
+
+        caption = list()
+        if labels is not None and label_names is not None:
+            label = labels[i]
+            if not (label >= 0 and label < len(label_names)):
+                raise ValueError
+            caption.append(label_names[label])
+        if scores is not None:
+            score = scores[i]
+            caption.append('{:.2f}'.format(score))
+
+        if len(caption) > 0:
+            ax.text(bbox[1], bbox[0],
+                    ': '.join(caption),
+                    style='italic',
+                    bbox={'facecolor': 'white', 'alpha': 0.7, 'pad': 10})
+    return ax
 
 if __name__ == '__main__':
-    imdb, roidb = combined_roidb('voc_2007_trainval')
-    roidb = filter_roidb(roidb)
+    main()

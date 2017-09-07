@@ -1,6 +1,5 @@
 import numpy as np
-from PIL import Image
-
+from PIL import Image, ImageDraw
 
 def read_image(path, dtype=np.float32, color=True):
     """Read an image from a file.
@@ -59,3 +58,9 @@ def write_image(img, path):
 
     img = Image.fromarray(img.astype(np.uint8))
     img.save(path)
+
+def draw_bbox_to_image(img, xy, path):
+    img = Image.fromarray(img.astype(np.uint8))
+    draw = ImageDraw.Draw(img)
+    draw.rectangle(xy, outline='red')
+    img.save(path, 'JPEG')

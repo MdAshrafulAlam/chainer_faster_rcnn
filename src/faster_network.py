@@ -8,12 +8,14 @@ from vgg16 import VGG16
 from faster_rcnn import FasterRCNN
 from region_proposal_network import RegionProposalNetwork
 
+from utils.download import *
+
 class FasterRCNNVGG16(FasterRCNN):
     _models = {
         'voc07': {
             'n_fg_class': 20,
             'url': 'https://github.com/yuyu2172/share-weights/releases/'
-            'download/0.0.4'
+            'download/0.0.4/'
             'faster_rcnn_vgg16_voc07_trained_2017_08_06.npz'
         }
     } # Add COCO or VOC12 here
@@ -72,7 +74,7 @@ class FasterRCNNVGG16(FasterRCNN):
         )
 
         if pretrained_model in self._models:
-            path = download_mode(self._models[pretrained_model]['url'])
+            path = download_model(self._models[pretrained_model]['url'])
             chainer.serializers.load_npz(path, self)
         elif pretrained_model == 'imagenet':
             self._copy_imagenet_pretrained_vgg16()

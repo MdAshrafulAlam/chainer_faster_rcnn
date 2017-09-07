@@ -3,6 +3,8 @@ import chainer
 from chainer import cuda
 import chainer.functions as F
 from resize import resize
+from bbox_transform import *
+from nms import non_maximum_suppression
 
 class FasterRCNN(chainer.Chain):
     def __init__(self, extractor, rpn, head, mean,
@@ -27,7 +29,7 @@ class FasterRCNN(chainer.Chain):
 
     @property
     def n_class(self):
-        return head.n_class
+        return self.head.n_class
 
     def __call__(self, x, scale=1.):
         img_size = x.shape[2:]
@@ -108,12 +110,12 @@ class FasterRCNN(chainer.Chain):
             roi_cls_loc = (roi_cls_loc * std + mean).astype(np.float32)
             roi_cls_loc = roi_cls_loc.reshape((-1, self.n_class, 4))
             roi = self.xp.broadcast_to(roi[:, None], roi_cls_loc.shape)
-            cls_bbox = loc2bbox(roi.reshape((-1, 4)), roi_cls_loc.reshape((-1, 4)))
+            cls_bbox = bbox_transform_inv(roi.reshape((-1, 4)), roi_cls_loc.reshape((-1, 4)))
             cls_bbox = cls_bbox.reshape((-1, self.n_class * 4))
 
             # Clipiing bounding box
             cls_bbox[:, 0::2] = self.xp.clip(cls_bbox[:, 0::2], 0, H / scale)
-            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / Scale)
+            cls_bbox[:, 1::2] = self.xp.clip(cls_bbox[:, 1::2], 0, W / scale)
 
             prob = F.softmax(roi_score).data
 
