@@ -12,12 +12,10 @@ class ProposalTargetCreator(object):
     def __call__(self, proposals, gt_boxes, labels,
                  loc_normalize_means=(0., 0., 0., 0.),
                  loc_normalize_stds=(0.1, 0.1, 0.2, 0.2)):
-        xp = cuda.get_array_module(proposals)
         proposals = cuda.to_cpu(proposals)
         gt_boxes = cuda.to_cpu(gt_boxes)
         labels = cuda.to_cpu(labels)
 
-        zeros = np.zeros((gt_boxes.shape[0], 1), dtype=gt_boxes.dtype)
         all_rois = np.concatenate((proposals, gt_boxes), axis=0)
         num_images = 1
         rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
@@ -28,20 +26,6 @@ class ProposalTargetCreator(object):
                 rois_per_image, self._num_classes, labels)
         return rois, bbox_targets, gt_labels
 
-# Bounding box regression target: (class, tx, ty, tw, th)
-def _get_bbox_regression_labels(bbox_target_data, num_classes):
-    class_name = bbox_target_data[:, 0]
-    bbox_targets = np.zeros((class_name.size, 4 * num_classes), dtype=np.float32)
-    bbox_inside_weights = np.zeros(bbox_targets.shape, dtype=np.float32)
-    inds = np.where(class_name > 0)[0]
-    for ind in inds:
-        cls = class_name[ind]
-        start = 4 * cls
-        end = start + 4
-        bbox_targets[inds, start:end] = bbox_target_data[ind, 1:]
-        bbox_inside_weights[ind, start:end] = cfg.TRAIN.BBOX_INSIDE_WEIGHTS
-    return bbox_targets, bbox_inside_weights
-
 def _compute_targets(ex_rois, gt_rois):
     targets = bbox_transform(ex_rois, gt_rois)
     if cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED:
@@ -51,9 +35,7 @@ def _compute_targets(ex_rois, gt_rois):
 
 def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
                  rois_per_image, num_classes, labels):
-    overlaps = bbox_overlaps(
-            np.ascontiguousarray(all_rois, dtype=np.float),
-            np.ascontiguousarray(gt_boxes, dtype=np.float))
+    overlaps = bbox_overlaps(all_rois, gt_boxes)
     gt_assignment = overlaps.argmax(axis=1)
     max_overlaps = overlaps.max(axis=1)
     gt_labels = labels[gt_assignment] + 1
@@ -88,6 +70,7 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
     bbox_targets = _compute_targets(
             rois, gt_boxes[gt_assignment[keep_inds]])
 
+    xp = cuda.get_array_module(rois)
     if xp != np:
         rois = cuda.to_gpu(rois)
         bbox_targets = cuda.to_gpu(bbox_targets)

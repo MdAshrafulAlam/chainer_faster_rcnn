@@ -1,13 +1,35 @@
 [
     {
-        "main/roi_cls_loss": 438117907.917788, 
-        "main/rpn_cls_loss": 0.46641547844628806, 
+        "main/roi_cls_loss": 1.1118668042123319, 
+        "main/rpn_cls_loss": 0.4805824153125286, 
         "iteration": 20, 
-        "elapsed_time": 777.1379978656769, 
+        "elapsed_time": 899.32865691185, 
         "epoch": 0, 
         "lr": 0.001, 
-        "main/rpn_loc_loss": 182833782.15275556, 
-        "main/roi_loc_loss": 1525652.0901897172, 
-        "main/loss": 622477361.2271508
+        "main/rpn_loc_loss": 0.22096227575093508, 
+        "main/roi_loc_loss": 0.27413827963573567, 
+        "main/loss": 2.087549790740013
+    }, 
+    {
+        "main/roi_cls_loss": 0.8032403208315373, 
+        "main/rpn_cls_loss": 0.3468324039131403, 
+        "iteration": 40, 
+        "elapsed_time": 1826.627958059311, 
+        "epoch": 0, 
+        "lr": 0.001, 
+        "main/rpn_loc_loss": 0.23594295782968402, 
+        "main/roi_loc_loss": 0.2804355645967462, 
+        "main/loss": 1.666451233625412
+    }, 
+    {
+        "main/roi_cls_loss": 0.6494467321783304, 
+        "main/rpn_cls_loss": 0.29461810998618604, 
+        "iteration": 60, 
+        "elapsed_time": 2699.6227300167084, 
+        "epoch": 0, 
+        "lr": 0.001, 
+        "main/rpn_loc_loss": 0.11236085838172585, 
+        "main/roi_loc_loss": 0.23585733011423143, 
+        "main/loss": 1.2922830179333686
     }
 ]

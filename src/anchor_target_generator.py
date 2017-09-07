@@ -29,38 +29,40 @@ class AnchorTargetCreator(object):
                 (anchors[:, 3] < im_width + self.allowed_border))[0]
         anchors = anchors[inds_inside, :]
 
-        labels = xp.empty((len(inds_inside),), dtype=xp.int32)
+        labels = np.empty((len(inds_inside),), dtype=np.int32)
         labels.fill(-1)
 
         # Overlaps between the anchors and the ground-truth boxes
         # TODO: implement overlap calculating method
-        overlaps = bbox_overlaps(xp.ascontiguousarray(anchors, dtype=xp.float),
-                                 xp.ascontiguousarray(gt_boxes, dtype=xp.float))
+        overlaps = bbox_overlaps(anchors, gt_boxes)
         argmax_overlaps = overlaps.argmax(axis=1)
-        max_overlaps = overlaps[xp.arange(len(inds_inside)), argmax_overlaps]
+        max_overlaps = overlaps[np.arange(len(inds_inside)), argmax_overlaps]
         gt_argmax_overlaps = overlaps.argmax(axis=0)
         gt_max_overlaps = overlaps[gt_argmax_overlaps,
-                                   xp.arange(overlaps.shape[1])]
-        gt_argmax_overlaps = xp.where(overlaps == gt_max_overlaps)[0]
+                                   np.arange(overlaps.shape[1])]
+        gt_argmax_overlaps = np.where(overlaps == gt_max_overlaps)[0]
 
         # Assign foreground label: for each ground-truth, anchor with highest overlap
+        labels[max_overlaps < cfg.TRAIN.RPN_NEGATIVE_OVERLAP] = 0
         labels[gt_argmax_overlaps] = 1
 
         # Assign foreground label: above threshold IOU
         labels[max_overlaps >= cfg.TRAIN.RPN_POSITIVE_OVERLAP] = 1
 
         num_fg = int(cfg.TRAIN.RPN_FG_FRACTION * cfg.TRAIN.RPN_BATCHSIZE)
-        fg_inds = xp.where(labels == 1)[0]
+        fg_inds = np.where(labels == 1)[0]
         if len(fg_inds) > num_fg:
             disable_inds = npr.choice(fg_inds, size=(len(fg_inds) - num_fg), replace=False)
             labels[disable_inds] = -1
 
-        num_bg = cfg.TRAIN.RPN_BATCHSIZE - xp.sum(labels == 1)
-        bg_inds = xp.where(labels == 0)[0]
+        num_bg = cfg.TRAIN.RPN_BATCHSIZE - np.sum(labels == 1)
+        bg_inds = np.where(labels == 0)[0]
         if len(bg_inds) > num_bg:
             disable_inds = npr.choice(bg_inds, size=(len(bg_inds) - num_bg), replace=False)
             labels[disable_inds] = -1
 
+        bbox_targets = bbox_transform(anchors, gt_boxes[argmax_overlaps])
+        '''
         bbox_targets = xp.zeros((len(inds_inside), 4), dtype=xp.float32)
         bbox_targets = _compute_targets(anchors, gt_boxes[argmax_overlaps, :])
 
@@ -79,11 +81,12 @@ class AnchorTargetCreator(object):
             negative_weights = (1 - cfg.TRAIN.RPN_POSITIVE_WEIGHT) / xp.sum(labels == 0)
         bbox_outside_weights[labels == 1, :] = positive_weights
         bbox_outside_weights[labels == 0, :] = negative_weights
+        '''
 
         labels = _unmap(labels, num_anchors, inds_inside, fill=-1)
         bbox_targets = _unmap(bbox_targets, num_anchors, inds_inside, fill=0)
-        bbox_inside_weights = _unmap(bbox_inside_weights, num_anchors, inds_inside, fill=0)
-        bbox_outside_weights = _unmap(bbox_outside_weights, num_anchors, inds_inside, fill=0)
+        # bbox_inside_weights = _unmap(bbox_inside_weights, num_anchors, inds_inside, fill=0)
+        # bbox_outside_weights = _unmap(bbox_outside_weights, num_anchors, inds_inside, fill=0)
 
         if xp != np:
             bbox_targets = cuda.to_gpu(bbox_targets)

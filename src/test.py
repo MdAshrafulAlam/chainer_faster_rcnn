@@ -1,7 +1,7 @@
 import argparse
 import matplotlib.pyplot as plt
 import chainer
-from pascalvoc import voc_detection_label_names
+from pascalvoc import voc_detection_label_names, voc_semantic_segmentation_label_colors
 from faster_network import FasterRCNNVGG16
 from utils.image import *
 
@@ -46,7 +46,8 @@ def draw_bbox(img, bboxes, labels=None, scores=None, label_names=None, ax=None):
         height = bbox[2] - bbox[0]
         width = bbox[3] - bbox[1]
         ax.add_patch(plt.Rectangle(
-            xy, width, height, fill=False, edgecolor='red', linewidth=3))
+            xy, width, height, fill=False,
+            edgecolor=np.array(voc_semantic_segmentation_label_colors[labels[i] + 1]) / 255., linewidth=3))
 
         caption = list()
         if labels is not None and label_names is not None:
