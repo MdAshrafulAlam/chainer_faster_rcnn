@@ -23,14 +23,10 @@ class ProposalTargetCreator(object):
         rois_per_image = cfg.TRAIN.BATCH_SIZE / num_images
         fg_rois_per_image = np.round(cfg.TRAIN.FG_FRACTION * rois_per_image)
 
-        rois, bbox_targets, labels = _sample_rois(
+        rois, bbox_targets, gt_labels = _sample_rois(
                 all_rois, gt_boxes, fg_rois_per_image,
                 rois_per_image, self._num_classes, labels)
-        if xp != np:
-            rois = cuda.to_gpu(rois)
-            bbox_targets = cuda.to_gpu(bbox_targets)
-            labels = cuda.to_gpu(labels)
-        return rois, bbox_targets, labels
+        return rois, bbox_targets, gt_labels
 
 # Bounding box regression target: (class, tx, ty, tw, th)
 def _get_bbox_regression_labels(bbox_target_data, num_classes):
@@ -60,7 +56,7 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
             np.ascontiguousarray(gt_boxes, dtype=np.float))
     gt_assignment = overlaps.argmax(axis=1)
     max_overlaps = overlaps.max(axis=1)
-    labels = labels[gt_assignment] + 1
+    gt_labels = labels[gt_assignment] + 1
 
     # Foreground ROIs which max_overlaps > FG_THRESH_overlap
     fg_inds = np.where(max_overlaps >= cfg.TRAIN.FG_THRESH)[0]
@@ -85,13 +81,16 @@ def _sample_rois(all_rois, gt_boxes, fg_rois_per_image,
     keep_inds = np.append(fg_inds, bg_inds)
 
     # Select sampled labels
-    labels = labels[keep_inds]
-    labels[fg_rois_this_image:] = 0
+    gt_labels = gt_labels[keep_inds]
+    gt_labels[fg_rois_this_image:] = 0
     rois = all_rois[keep_inds]
 
     bbox_targets = _compute_targets(
             rois, gt_boxes[gt_assignment[keep_inds]])
-    # bbox_targets, bbox_inside_weights = \
-    #         _get_bbox_regression_labels(bbox_target_data, num_classes)
 
-    return rois, bbox_targets, labels
+    if xp != np:
+        rois = cuda.to_gpu(rois)
+        bbox_targets = cuda.to_gpu(bbox_targets)
+        gt_labels = cuda.to_gpu(gt_labels)
+
+    return rois, bbox_targets, gt_labels
